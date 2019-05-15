@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<%= session.email %>님 환영합니다.
+<form action="/users/logout" method="get">
+    <input type="submit" value="로그아웃">
+</form>
+<%- include new.ejs %>
+잔액 : <%= user_info.balance %>
+<%- include history.ejs %>
+</body>
+</html>

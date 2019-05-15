@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <% if(session.email){ %>
+      <%= session.email %>님 환영합니다.
+      <a href="/transfer">송금하러 가기</a>
+    <% } else {%>
+      <%- include user/login.ejs %>
+    <% } %>
+
+  </body>
+</html>

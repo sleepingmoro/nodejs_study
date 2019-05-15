@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<h1>송금 내역</h1>
+<hr>
+<!-- TODO: pagination -->
+
+<table style="border: solid black 1px; margin-bottom:30px;">
+    <tr>
+        <td>id</td>
+        <td>보낸사람</td>
+        <td>받은사람</td>
+        <td>금액</td>
+        <td>유형</td>
+        <td>작성일</td>
+    </tr>
+    <% for(let history of histories) { %>
+        <tr>
+            <td><%= history.id %></td>
+            <td><%= history.sentUserEmail %></td>
+            <td><%= history.receivedUserEmail %></td>
+            <td><%= history.amount %></td>
+            <% if(history.type == 1){ %>
+                <td>거래</td>
+            <% } else if(history.type == 2){ %>
+                <td>가입기념 포인트 지급</td>
+            <% } else if(history.type == 3){ %>
+                <td>추천인 포인트 지급</td>
+            <% } else { %>
+                <td>테스트용 포인트 지급</td>
+            <% } %>
+            <td><%= history.createdAt.toISOString().replace(/T/, ' ').replace(/\..+/, '') %></td>
+        </tr>
+    <% } %>
+</table>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+<% if(session.email){ %>
+    <h3><%= session.email%>님 환영합니다.</h3>
+    <form action="/users/logout" method="get">
+        <input type="submit" value="로그아웃">
+    </form>
+
+<form action="/users/pay" method="post">
+<!--    <input type="text" name="userEmail">에게-->
+<!--    <input type="text" name="amount">transfer-->
+    <input type="text" name="userEmail" value="b@b.com">에게
+    <input type="text" name="amount" value="10">point
+    <input type="submit" value="송금하기">
+</form>
+
+<a href="/transfer">송금기록 보기</a>
+
+<% } else { %>
+    <h3>로그인</h3>
+    <form action="/users/login" method="post">
+        <table>
+            <tr>
+                <td>이메일 : </td>
+                <td><input type="text" name="userEmail" value="a@a.com"></td>
+<!--                <td><input type="text" name="userEmail"></td>-->
+            </tr>
+            <tr>
+                <td>비번 : </td>
+                <td><input type="password" name="password"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="로그인"></t>
+            </tr>
+        </table>
+    </form>
+<a href="/users/sign_up">가입하기</a>
+<% } %>
+
+</body>
+</html>

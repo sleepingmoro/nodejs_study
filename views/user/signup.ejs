@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<h3>회원 가입</h3>
+<form action="/users/sign_up" method="post">
+    <table>
+        <tr>
+            <td>이름 : </td>
+            <td><input type="text" name="userName"></td>
+        </tr>
+        <tr>
+            <td>이메일 : </td>
+            <td><input type="text" name="userEmail"></td>
+        </tr>
+        <tr>
+            <td>비밀번호 : </td>
+            <td><input type="password" name="password"></td>
+        </tr>
+        <tr>
+            <td>추천인 : </td>
+            <td><input id="recommend_user_email" type="text" name="recommendUserEmail"></td>
+            <div id="recommended_user"></div>
+        </tr>
+        <tr>
+            <td><input id="find_recommended_user" type="button" value="추천인 확인"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="회원가입"></td>
+        </tr>
+    </table>
+</form>
+<script>
+    //TODO : on submit data validation
+    $('#find_recommended_user').click(function(){
+        console.log('hi');
+        $.ajax({
+            url: '/users/find_recommended_user',
+            dataType: 'json',
+            type: 'POST',
+            data: {'recommended_user_email': $('#recommend_user_email').val()},
+            success: function(result){
+                if(result['user']){
+                    const user_name = result['user'].name;
+                    console.log(user_name);
+                    if(confirm(user_name + '님을 추천인으로 입력하시겠습니까?')){
+                        $('#recommend_user_email').attr('readOnly', true);
+                        $('#recommend_user_email').text(user_name);
+                        $('#find_recommended_user').hide();
+                    }
+                } else {
+                    alert('존재하지 않는 유저입니다.\n추천인 이메일을 바르게 입력해주세요.');
+                    console.log('no user');
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>
