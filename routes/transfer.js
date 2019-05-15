@@ -84,70 +84,52 @@ router.post('/send_point', function(req, res, next) {
 // TODO: 송금 관련 라우트 및 페이지 따로 빼기
 // TODO: Transaction 걸기, 실패시 롤백
 router.post("/pay", function(req, res, next){
-    let body = req.body;
-    console.log(body);
+    let receiver_email = req.body.userEmail;
+    let sender_email = req.session.email;
+    let amount = req.body.amount;
 
-    // models.user.findOne({
-    //     where: {email: body.userEmail}
-    // }, function(result){
-    //     console.log(result);
-    //     console.log(result.balance);
-    //     // 받는사람의 금액 변경
-    //     result.update({
-    //         balance: parseInt(result.dataValues.balance) + parseInt(body.amount)
-    //     });
-    //     // 보내는사람의 금액 변경
-    //     models.user.findOne({
-    //         where: {email: req.session.email}
-    //     }, function(result2){
-    //         result2.update({
-    //             balance: parseInt(result2.dataValues.balance) - parseInt(body.amount)
-    //         });
-    //         createhistory(result2.dataValues.email, result.dataValues.email, parseInt(body.amount), 1);
-    //     }, function(){
-    //         res.redirect("/transfer");
-    //     });
-    // });
-
-
-    models.user.findOne({
-        where: {email: body.userEmail}
-    })
-        .then(result => {
-            // 받는사람의 금액 변경
-            result.update({
-                balance: parseInt(result.dataValues.balance) + parseInt(body.amount)
-            });
+    var sender = function (email) {
+        return new Promise(function(resolve, reject) {
             // 보내는사람의 금액 변경
+            console.log("sender1");
             models.user.findOne({
                 where: {email: req.session.email}
-            })
-                .then(result2 => {
-                    result2.update({
-                        balance: parseInt(result2.dataValues.balance) - parseInt(body.amount)
-                    });
-                    console.log(result2.dataValues.id);
-                    console.log(result2.dataValues.email);
-                    console.log(result2.dataValues.name);
-                    console.log(result2.dataValues.balance);
-                    console.log(result.dataValues.email);
-                    console.log(result.dataValues.name);
-                    console.log(result.dataValues.balance);
-
-                    // 송금 history create
-                    createhistory(result2.dataValues.email, result.dataValues.email, parseInt(body.amount), 1);
-
+            }).then(send_user => {
+                send_user.update({
+                    balance: parseInt(send_user.dataValues.balance) - parseInt(amount)
                 });
-
-            // TODO: 송금이 완료된 다음에 redirect 되도록 해야함.
-            // 지금 update랑 redirect랑 같은 depth에 있어서 그런것.
-            // TODO: 지금은 뷰에서 보이는 잔액이 왔다갔다함. 비동기 떄문인거같음..
-            res.redirect("/transfer");
-        })
-        .catch( err => {
-            console.log(err);
+                console.log("sender2");
+                resolve(send_user.email);
+            });
         });
+    };
 
+    var receiver = function (email) {
+        return new Promise(function(resolve, rejext) {
+            console.log("r1");
+
+            models.user.findOne({
+                where: {email: body.userEmail}
+            }).then(receive_user => {
+                receive_user.update({
+                    balance: parseInt(receive_user.dataValues.balance) + parseInt(amount)
+                });
+                console.log("r2");
+                resolve(receive_user.email);
+            });
+        });
+    };
+
+    Promise.all([sender(sender_email), receiver(receiver_email)])
+        .then(function (result) {
+        console.log("result0, sender", result[0]);
+        console.log("result1, receiver", result[1]);
+        createhistory(result[1], result[0], parseInt(body.amount), 1);
+        })
+        .then(function(){
+            console.log("redirect");
+            res.redirect("/transfer");
+        });
 });
 
 module.exports = router;

@@ -18,6 +18,7 @@ router.post("/sign_up", function(req,res,next){
   let salt = Math.round((new Date().valueOf() * Math.random())) + "";
   let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
+  // 새 유저 생성
   models.user.create({
     name: body.userName,
     email: body.userEmail,
@@ -30,13 +31,14 @@ router.post("/sign_up", function(req,res,next){
           // 가입축하 포인트 history create
           createhistory('admin', new_user.email, 500, 2);
 
+          // 추천인 입력한 경우 추천인에게 포인트 지급
           if(new_user.recommendedUserEmail){
               console.log("추천인 있음!!!!!!!!!!!!!!!!!!");
               models.user.findOne({
                   where: {email: new_user.recommendedUserEmail}
               })
                   .then( recommended_user => {
-                      recommended_user.update({balance: parseInt(recommended_user.balance) + 500 })
+                      recommended_user.update({balance: parseInt(recommended_user.balance) + 500 });
                       // 추천인 포인트 history create
                       createhistory(new_user.email, recommended_user.email, 500, 3);
                   })
