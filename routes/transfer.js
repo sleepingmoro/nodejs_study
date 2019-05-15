@@ -100,12 +100,17 @@ router.post("/pay", function(req, res, next){
                     where: {email: sender_email},
                     transaction: t
                 }).then(send_user => {
-                    return send_user.update({
-                        balance: parseInt(send_user.dataValues.balance) - amount
-                    },{
-                        transaction: t
-                    });
-
+                    if(send_user.balance > amount) {
+                        return send_user.update({
+                            balance: parseInt(send_user.dataValues.balance) - amount
+                        }, {
+                            transaction: t
+                        });
+                    } else {
+                        console.log("잔액부족====================");
+                        reject('잔액 부족');
+                        return t.rollback();
+                    }
                 }).then(
                     // 받는 사람의 금액 변경
                     models.user.findOne({
@@ -137,8 +142,9 @@ router.post("/pay", function(req, res, next){
     transfer()
         .then(function (result) {
             createhistory(sender_email, receiver_email, amount, 1);
-        }).catch(function(){
+        }).catch(function(msg){
             console.log("에러가 발생했어요");
+            console.log(msg);
         }).then(function(){
             console.log("redirect");
             res.redirect("/transfer");
