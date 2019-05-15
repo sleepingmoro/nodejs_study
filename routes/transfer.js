@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const models = require("../models");
 const createhistory = require('./lib/createhistory.js');
+var msg = '';
 
 router.get('/', function(req, res, next) {
     if(!req.session.email){
@@ -24,13 +25,10 @@ router.get('/', function(req, res, next) {
             res.render("transfer/index", {
                 histories: result,
                 session: session,
-                user_info: user_info
+                user_info: user_info,
+                msg: msg
             });
-
-            // console.log("date",result[0].createdAt);
-            // console.log("date", result[0].createdAt instanceof Date);
-            // console.log("date", result[0].createdAt.getMonth());
-
+            msg = '';
         });
     }).catch();
 
@@ -87,6 +85,10 @@ router.post("/pay", function(req, res, next){
     let receiver_email = req.body.userEmail;
     let sender_email = req.session.email;
     let amount = parseInt(req.body.amount);
+    if(!sender_email){
+        res.redirect("/");
+        return;
+    }
 
     var transfer = function () {
         return new Promise(function(resolve, reject) {
@@ -107,8 +109,8 @@ router.post("/pay", function(req, res, next){
                             transaction: t
                         });
                     } else {
-                        console.log("잔액부족====================");
                         reject('잔액 부족');
+                        throw new Error('not enough balance!');
                         return t.rollback();
                     }
                 }).then(
@@ -117,36 +119,42 @@ router.post("/pay", function(req, res, next){
                         where: {email: receiver_email},
                         transaction: t
                     }).then(receive_user => {
-                        return receive_user.update({
-                            balance: parseInt(receive_user.dataValues.balance) + amount
-                        },{
-                            transaction: t
-                        });
+                        if(receive_user){
+                            return receive_user.update({
+                                balance: parseInt(receive_user.dataValues.balance) + amount
+                            },{
+                                transaction: t
+                            });
+                        } else {
+                            reject('존재하지 않는 유저입니다.');
+                            throw new Error('no user');
+                            return t.rollback();
+                        }
 
                     }).then(function(){
                         resolve(receiver_email, t);
                         return t.commit();
                     }).catch(function (err) {
-                        reject(err);
+                        reject('문제가 발생하였습니다. 잠시 후 다시 시도해주세요.');
                         if (t) {
                             t.rollback();
                             next(err);
                         }
                     })
-            )
-
-            });
+            )});
         });
     };
 
     transfer()
         .then(function (result) {
             createhistory(sender_email, receiver_email, amount, 1);
-        }).catch(function(msg){
-            console.log("에러가 발생했어요");
-            console.log(msg);
         }).then(function(){
             console.log("redirect");
+            res.redirect("/transfer");
+        }).catch(function(err){
+            console.log("err 메시지"+err);
+            msg = err;
+            console.log(msg);
             res.redirect("/transfer");
         });
 });
