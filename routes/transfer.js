@@ -86,47 +86,60 @@ router.post('/send_point', function(req, res, next) {
 router.post("/pay", function(req, res, next){
     let receiver_email = req.body.userEmail;
     let sender_email = req.session.email;
-    let amount = req.body.amount;
+    let amount = parseInt(req.body.amount);
 
-    var sender = function (email) {
+    var transfer = function () {
         return new Promise(function(resolve, reject) {
-            // 보내는사람의 금액 변경
-            console.log("sender1");
-            models.user.findOne({
-                where: {email: req.session.email}
-            }).then(send_user => {
-                send_user.update({
-                    balance: parseInt(send_user.dataValues.balance) - parseInt(amount)
-                });
-                console.log("sender2");
-                resolve(send_user.email);
+
+            // 트랜젝션
+            models.sequelize.transaction().then(function(transaction){
+                t = transaction;
+
+                // 보내는사람의 금액 변경
+                models.user.findOne({
+                    where: {email: sender_email},
+                    transaction: t
+                }).then(send_user => {
+                    return send_user.update({
+                        balance: parseInt(send_user.dataValues.balance) - amount
+                    },{
+                        transaction: t
+                    });
+
+                }).then(
+                    // 받는 사람의 금액 변경
+                    models.user.findOne({
+                        where: {email: receiver_email},
+                        transaction: t
+                    }).then(receive_user => {
+                        return receive_user.update({
+                            balance: parseInt(receive_user.dataValues.balance) + amount
+                        },{
+                            transaction: t
+                        });
+
+                    }).then(function(){
+                        resolve(receiver_email, t);
+                        return t.commit();
+                    }).catch(function (err) {
+                        reject(err);
+                        if (t) {
+                            t.rollback();
+                            next(err);
+                        }
+                    })
+            )
+
             });
         });
     };
 
-    var receiver = function (email) {
-        return new Promise(function(resolve, rejext) {
-            console.log("r1");
-
-            models.user.findOne({
-                where: {email: body.userEmail}
-            }).then(receive_user => {
-                receive_user.update({
-                    balance: parseInt(receive_user.dataValues.balance) + parseInt(amount)
-                });
-                console.log("r2");
-                resolve(receive_user.email);
-            });
-        });
-    };
-
-    Promise.all([sender(sender_email), receiver(receiver_email)])
+    transfer()
         .then(function (result) {
-        console.log("result0, sender", result[0]);
-        console.log("result1, receiver", result[1]);
-        createhistory(result[1], result[0], parseInt(body.amount), 1);
-        })
-        .then(function(){
+            createhistory(sender_email, receiver_email, amount, 1);
+        }).catch(function(){
+            console.log("에러가 발생했어요");
+        }).then(function(){
             console.log("redirect");
             res.redirect("/transfer");
         });
