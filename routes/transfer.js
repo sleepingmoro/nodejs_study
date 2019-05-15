@@ -78,75 +78,21 @@ router.post('/send_point', function(req, res, next) {
 
 });
 
-// TODO: 중첩된 메서드 해결...
 // TODO: 송금 관련 라우트 및 페이지 따로 빼기
-// TODO: Transaction 걸기, 실패시 롤백
+// TODO: 중복되는 부분 모듈화하기
+// TODO: 불필요하게 가져오는 컬럼 제거
 router.post("/pay", function(req, res, next){
     let receiver_email = req.body.userEmail;
     let sender_email = req.session.email;
     let amount = parseInt(req.body.amount);
+
     if(!sender_email){
         res.redirect("/");
         return;
     }
 
-    var transfer = function () {
-        return new Promise(function(resolve, reject) {
-
-            // 트랜젝션
-            models.sequelize.transaction().then(function(transaction){
-                t = transaction;
-
-                // 보내는사람의 금액 변경
-                models.user.findOne({
-                    where: {email: sender_email},
-                    transaction: t
-                }).then(send_user => {
-                    if(send_user.balance > amount) {
-                        return send_user.update({
-                            balance: parseInt(send_user.dataValues.balance) - amount
-                        }, {
-                            transaction: t
-                        });
-                    } else {
-                        reject('잔액 부족');
-                        throw new Error('not enough balance!');
-                        return t.rollback();
-                    }
-                }).then(
-                    // 받는 사람의 금액 변경
-                    models.user.findOne({
-                        where: {email: receiver_email},
-                        transaction: t
-                    }).then(receive_user => {
-                        if(receive_user){
-                            return receive_user.update({
-                                balance: parseInt(receive_user.dataValues.balance) + amount
-                            },{
-                                transaction: t
-                            });
-                        } else {
-                            reject('존재하지 않는 유저입니다.');
-                            throw new Error('no user');
-                            return t.rollback();
-                        }
-
-                    }).then(function(){
-                        resolve(receiver_email, t);
-                        return t.commit();
-                    }).catch(function (err) {
-                        reject('문제가 발생하였습니다. 잠시 후 다시 시도해주세요.');
-                        if (t) {
-                            t.rollback();
-                            next(err);
-                        }
-                    })
-            )});
-        });
-    };
-
-    transfer()
-        .then(function (result) {
+    transfer(receiver_email, sender_email, amount)
+        .then(function () {
             createhistory(sender_email, receiver_email, amount, 1);
         }).then(function(){
             console.log("redirect");
@@ -158,5 +104,59 @@ router.post("/pay", function(req, res, next){
             res.redirect("/transfer");
         });
 });
+
+var transfer = function (receiver_email, sender_email, amount) {
+    return new Promise(function(resolve, reject) {
+
+        // 트랜젝션
+        models.sequelize.transaction().then(function(transaction){
+            t = transaction;
+
+            // 보내는사람의 금액 변경
+            models.user.findOne({
+                where: {email: sender_email},
+                transaction: t
+            }).then(send_user => {
+                if(send_user.balance > amount) {
+                    return send_user.update({
+                        balance: parseInt(send_user.dataValues.balance) - amount
+                    }, {
+                        transaction: t
+                    });
+                } else {
+                    reject('잔액 부족');
+                    return t.rollback();
+                    // throw new Error('not enough balance!');
+                }
+            }).then(
+                // 받는 사람의 금액 변경
+                models.user.findOne({
+                    where: {email: receiver_email},
+                    transaction: t
+                }).then(receive_user => {
+                    if(receive_user){
+                        return receive_user.update({
+                            balance: parseInt(receive_user.dataValues.balance) + amount
+                        },{
+                            transaction: t
+                        });
+                    } else {
+                        reject('존재하지 않는 유저입니다.');
+                        throw new Error('no user');
+                    }
+
+                }).then(function(){
+                    resolve(receiver_email, t);
+                    return t.commit();
+                }).catch(function (err) {
+                    reject('문제가 발생하였습니다. 잠시 후 다시 시도해주세요.');
+                    if (t) {
+                        t.rollback();
+                    }
+                })
+            )});
+    });
+};
+
 
 module.exports = router;
