@@ -98,7 +98,6 @@ router.post("/pay", function(req, res, next){
             console.log("redirect");
             res.redirect("/transfer");
         }).catch(function(err){
-            console.log("err 메시지"+err);
             msg = err;
             console.log(msg);
             res.redirect("/transfer");
@@ -126,7 +125,6 @@ var transfer = function (receiver_email, sender_email, amount) {
                 } else {
                     reject('잔액 부족');
                     return t.rollback();
-                    // throw new Error('not enough balance!');
                 }
             }).then(
                 // 받는 사람의 금액 변경
@@ -150,9 +148,6 @@ var transfer = function (receiver_email, sender_email, amount) {
                     return t.commit();
                 }).catch(function (err) {
                     reject('문제가 발생하였습니다. 잠시 후 다시 시도해주세요.');
-                    if (t) {
-                        t.rollback();
-                    }
                 })
             )});
     });

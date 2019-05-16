@@ -9,7 +9,7 @@
 <form action="/users/logout" method="get">
     <input type="submit" value="로그아웃">
 </form>
-<h1><%= msg %></h1>
+<p style="color:red;"><%= msg %></p>
 <%- include new.ejs %>
 잔액 : <%= user_info.balance %>
 <%- include history.ejs %>
