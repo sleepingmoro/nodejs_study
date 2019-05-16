@@ -43,68 +43,124 @@ router.get('/history', function(req, res, next) {
         return;
     }
 
+    var pageNum = req.query.page; // 요청 페이지 넘버
+    let offset = 0;
+    console.log(pageNum);
+
+    if(pageNum > 1){
+        offset = 10 * (pageNum - 1);
+    }
+
     var tab = req.query.tab;
     let session = req.session;
+    var c;
     console.log("=====================", tab);
 
     switch (tab) {
-        case 'receive':
+        case 'received':
             console.log('입금내역');
-            models.transferHistory.findAll({
-                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                where: {receivedUserEmail: req.session.email},
-                order: [['id', 'DESC']]
-            }).then(histories => {
-                res.render("transfer/history", {
-                    histories: histories,
-                    session: session,
-                    user_info: req.session.email
+            models.transferHistory.findAll(
+                {where: {receivedUserEmail: req.session.email}
+                }).then(count =>{
+                c = count.length;
+            }).then(function() {
+                models.transferHistory.findAll({
+                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                    where: {receivedUserEmail: req.session.email},
+                    order: [['id', 'DESC']],
+                    offset: offset,
+                    limit: 10
+                }).then(histories => {
+                    console.log(c);
+                    res.render("transfer/history", {
+                        histories: histories,
+                        session: session,
+                        user_info: req.session.email,
+                        count: c,
+                        tab: tab,
+                        page: pageNum
+                    });
                 });
             });
             break;
         case 'sent':
             console.log('출금내역');
-            models.transferHistory.findAll({
-                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                where: {sentUserEmail: req.session.email},
-                order: [['id', 'DESC']]
-            }).then(histories => {
-                res.render("transfer/history", {
-                    histories: histories,
-                    session: session,
-                    user_info: req.session.email
+            models.transferHistory.findAll(
+                {where: {sentUserEmail: req.session.email}
+                }).then(count =>{
+                c = count.length;
+            }).then(function() {
+                models.transferHistory.findAll({
+                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                    where: {sentUserEmail: req.session.email},
+                    order: [['id', 'DESC']],
+                    offset: offset,
+                    limit: 10
+                }).then(histories => {
+                    res.render("transfer/history", {
+                        histories: histories,
+                        session: session,
+                        user_info: req.session.email,
+                        count: c,
+                        tab: tab,
+                        page: pageNum
+                    });
                 });
             });
             break;
         case 'test':
             console.log('테스트용 전체내역');
-            models.transferHistory.findAll({
-                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                order: [['id', 'DESC']]
-            }).then(histories => {
-                res.render("transfer/history", {
-                    histories: histories,
-                    session: session,
-                    user_info: req.session.email
+            models.transferHistory.findAll().then(count =>{
+                c = count.length;
+            }).then(function() {
+                models.transferHistory.findAll({
+                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                    order: [['id', 'DESC']],
+                    offset: offset,
+                    limit: 10
+                }).then(histories => {
+                    res.render("transfer/history", {
+                        histories: histories,
+                        session: session,
+                        user_info: req.session.email,
+                        count: c,
+                        tab: tab,
+                        page: pageNum
+                    });
                 });
             });
             break;
         default:
             console.log('나의 전체내역');
-            models.transferHistory.findAll({
-                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                where: {
-                    [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
-                },
-                order: [['id', 'DESC']]
-            }).then(histories => {
-                res.render("transfer/history", {
-                    histories: histories,
-                    session: session,
-                    user_info: req.session.email
+            models.transferHistory.findAll(
+                {where: {
+                        [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
+                    }
+                }).then(count =>{
+                c = count.length;
+            }).then(function() {
+                models.transferHistory.findAll({
+                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                    where: {
+                        [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
+                    },
+                    order: [['id', 'DESC']],
+                    offset: offset,
+                    limit: 10
+                }).then(histories => {
+                    res.render("transfer/history", {
+                        histories: histories,
+                        session: session,
+                        user_info: req.session.email,
+                        count: c,
+                        tab: tab,
+                        page: pageNum
+                    });
                 });
             });
     }
+
+    // });
 });
 
 
