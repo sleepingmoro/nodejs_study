@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const models = require("../models");
 const createhistory = require('./lib/createhistory.js');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 var msg = '';
 
 router.get('/', function(req, res, next) {
@@ -13,14 +15,16 @@ router.get('/', function(req, res, next) {
     let session = req.session;
 
     models.user.findOne({
-        where: {email: req.session.email}
+            where: {email: req.session.email}
         }
     ).then(user_info => {
-        models.transferHistory.findAll(
-            {order: [
-                    ['id', 'DESC']
-                ]}
-        ).then(result => {
+        models.transferHistory.findAll({
+            attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+            where: {
+                [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
+            },
+            order: [['id', 'DESC']]
+        }).then(result => {
 
             res.render("transfer/index", {
                 histories: result,
@@ -31,8 +35,78 @@ router.get('/', function(req, res, next) {
             msg = '';
         });
     }).catch();
-
 });
+
+router.get('/history', function(req, res, next) {
+    if(!req.session.email){
+        res.redirect("/");
+        return;
+    }
+
+    var tab = req.query.tab;
+    let session = req.session;
+    console.log("=====================", tab);
+
+    switch (tab) {
+        case 'receive':
+            console.log('입금내역');
+            models.transferHistory.findAll({
+                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                where: {receivedUserEmail: req.session.email},
+                order: [['id', 'DESC']]
+            }).then(histories => {
+                res.render("transfer/history", {
+                    histories: histories,
+                    session: session,
+                    user_info: req.session.email
+                });
+            });
+            break;
+        case 'sent':
+            console.log('출금내역');
+            models.transferHistory.findAll({
+                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                where: {sentUserEmail: req.session.email},
+                order: [['id', 'DESC']]
+            }).then(histories => {
+                res.render("transfer/history", {
+                    histories: histories,
+                    session: session,
+                    user_info: req.session.email
+                });
+            });
+            break;
+        case 'test':
+            console.log('테스트용 전체내역');
+            models.transferHistory.findAll({
+                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                order: [['id', 'DESC']]
+            }).then(histories => {
+                res.render("transfer/history", {
+                    histories: histories,
+                    session: session,
+                    user_info: req.session.email
+                });
+            });
+            break;
+        default:
+            console.log('나의 전체내역');
+            models.transferHistory.findAll({
+                attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+                where: {
+                    [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
+                },
+                order: [['id', 'DESC']]
+            }).then(histories => {
+                res.render("transfer/history", {
+                    histories: histories,
+                    session: session,
+                    user_info: req.session.email
+                });
+            });
+    }
+});
+
 
 // test용 API
 router.post('/send_point', function(req, res, next) {
@@ -95,13 +169,13 @@ router.post("/pay", function(req, res, next){
         .then(function () {
             createhistory(sender_email, receiver_email, amount, 1);
         }).then(function(){
-            console.log("redirect");
-            res.redirect("/transfer");
-        }).catch(function(err){
-            msg = err;
-            console.log(msg);
-            res.redirect("/transfer");
-        });
+        console.log("redirect");
+        res.redirect("/transfer");
+    }).catch(function(err){
+        msg = err;
+        console.log(msg);
+        res.redirect("/transfer");
+    });
 });
 
 var transfer = function (receiver_email, sender_email, amount) {

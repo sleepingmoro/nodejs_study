@@ -5,10 +5,13 @@
     <title>Document</title>
 </head>
 <body>
-<h1>송금 내역</h1>
+<h1>송금 내역</h1><a href="/transfer">송금하러 가기</a>
 <hr>
 <!-- TODO: pagination -->
-
+<a href="/transfer/history">전체</a>
+<a href="/transfer/history?tab=receive">입금</a>
+<a href="/transfer/history?tab=sent">출금</a>
+<a href="/transfer/history?tab=test">모든 유저의 내역 보기(테스트용)</a>
 <table style="border: solid black 1px; margin-bottom:30px;">
     <tr>
         <td>id</td>
