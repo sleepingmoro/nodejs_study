@@ -10,8 +10,8 @@
 <hr>
 <!-- TODO: pagination -->
 <ul class="nav nav-tabs">
-    <li class="nav-item" id="all">
-        <a href="/transfer/history?tab=all">전체</a>
+    <li class="nav-item active" id="all">
+        <a href="/transfer/history">전체</a>
     </li>
     <li class="nav-item" id="received">
         <a href="/transfer/history?tab=received">입금</a>
@@ -53,14 +53,35 @@
     <% } %>
 </table>
 <!-- paginator -->
-<% var pages = Math.ceil(count/10); %>
-<ul class="pagination">
-    <% for(var i=1;i<=pages;i++){ %>
-    <li class="page-item" id="page<%=i%>">
-        <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>"><%= i %></a>
-    </li>
+<% var maxPage = Math.ceil(count/10);%>
+<% if(maxPage>1){ %>
+    <% var num = 0;%>
+    <% var dataSize = count;%>
+    <% var currentPage = 1;%>
+        <% if(page){currentPage = page;}%>
+    <ul class="pagination">
+    <% for(i= currentPage-3;i<=maxPage;i++){%>
+        <% if(i>=1){%>
+            <% if(num > 6){break;}%>
+            <% if(num==0){%>
+            <li class="page-item" id="page<%=i%>">
+                <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">prev</a>
+            </li>
+
+            <% }else if(num==6){ %>
+                <li class="page-item" id="page<%=i%>">
+                    <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">next</a>
+                </li>
+            <% }else{ %>
+                <li class="page-item" id="page<%=i%>">
+                    <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>"><%=i%></a>
+                </li>
+            <% } %>
+        <% } %>
+        <% num++; %>
     <% } %>
-</ul>
+    </ul>
+<% } %>
 <!-- paginator end -->
 </body>
 <script>
@@ -74,8 +95,6 @@
     function activeTabs() {
 
         var url = window.location.href;
-        var tabName = 'all';
-        var pageNumber = 1;
 
         if(url.includes('tab')){
             tabName  = getParameterByName("tab", url);
@@ -87,12 +106,16 @@
         if(tabName){
             var tab = document.getElementById(tabName);
             tab.classList.add("active");
+            document.getElementById('all').classList.remove("active");
         }
         if(pageNumber){
             var page = document.getElementById('page' + pageNumber);
             page.classList.add("active");
+            document.getElementById('page1').classList.remove("active");
         }
     }
+
     activeTabs();
+
 </script>
 </html>
