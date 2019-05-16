@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4b0848c4-b497-426a-9f85-ce855e0bfc05" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/routes/transfer.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/transfer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/transfer/history.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/transfer/history.ejs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -30,7 +31,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/users.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-669">
+            <state relative-caret-position="295">
               <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
             </state>
           </provider>
@@ -39,8 +40,17 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/routes/transfer.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="720">
-              <caret line="155" column="18" lean-forward="true" selection-start-line="155" selection-start-column="18" selection-end-line="155" selection-end-column="18" />
+            <state relative-caret-position="244">
+              <caret line="146" column="35" lean-forward="true" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/routes/lib/createhistory.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -48,8 +58,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/transfer/index.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="4" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
+            <state relative-caret-position="210">
+              <caret line="14" column="19" lean-forward="true" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/views/transfer/history.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="194">
+              <caret line="24" column="23" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -95,7 +114,6 @@
         <option value="$PROJECT_DIR$/../node_study3/node_study.sql" />
         <option value="$PROJECT_DIR$/config/config.json" />
         <option value="$PROJECT_DIR$/app.js" />
-        <option value="$PROJECT_DIR$/views/transfer/history.ejs" />
         <option value="$PROJECT_DIR$/views/user/login.ejs" />
         <option value="$PROJECT_DIR$/views/index.ejs" />
         <option value="$PROJECT_DIR$/models/pointhistory.js" />
@@ -112,6 +130,7 @@
         <option value="$PROJECT_DIR$/routes/index.js" />
         <option value="$PROJECT_DIR$/routes/users.js" />
         <option value="$PROJECT_DIR$/views/transfer/index.ejs" />
+        <option value="$PROJECT_DIR$/views/transfer/history.ejs" />
         <option value="$PROJECT_DIR$/routes/transfer.js" />
       </list>
     </option>
@@ -158,6 +177,12 @@
               <item name="nodejs_study2" type="b2602c69:ProjectViewProjectNode" />
               <item name="nodejs_study2" type="462c0819:PsiDirectoryNode" />
               <item name="routes" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="nodejs_study2" type="b2602c69:ProjectViewProjectNode" />
+              <item name="nodejs_study2" type="462c0819:PsiDirectoryNode" />
+              <item name="routes" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="nodejs_study2" type="b2602c69:ProjectViewProjectNode" />
@@ -236,7 +261,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="50591000" />
+    <option name="totallyTimeSpent" value="52915000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -261,7 +286,7 @@
       <window_info anchor="bottom" id="Docker" order="3" show_stripe_button="false" />
       <window_info anchor="bottom" id="Message" order="4" />
       <window_info anchor="bottom" id="Find" order="5" weight="0.32970297" />
-      <window_info active="true" anchor="bottom" id="Run" order="6" visible="true" weight="0.04698795" />
+      <window_info active="true" anchor="bottom" id="Run" order="6" visible="true" weight="0.3120482" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="9" weight="0.4" />
@@ -357,13 +382,6 @@
     <entry file="file://$PROJECT_DIR$/migrations/20190512220318-create-point-history.js" />
     <entry file="file://$PROJECT_DIR$/models/pointhistory.js" />
     <entry file="file://$PROJECT_DIR$/migrations/20190514165632-create-transfer-history.js" />
-    <entry file="file://$PROJECT_DIR$/views/transfer/history.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="49" lean-forward="true" selection-start-line="23" selection-start-column="49" selection-end-line="23" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/migrations/20190512220318-create-tranfer-history.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="196">
@@ -416,13 +434,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/lib/createhistory.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/models/transferhistory.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -434,13 +445,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="547">
           <caret line="50" column="26" selection-start-line="50" selection-start-column="26" selection-end-line="50" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/routes/users.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-669">
-          <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
         </state>
       </provider>
     </entry>
@@ -458,17 +462,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/routes/lib/createhistory.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/users.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/views/transfer/index.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="4" selection-start-line="11" selection-start-column="4" selection-end-line="11" selection-end-column="4" />
+        <state relative-caret-position="210">
+          <caret line="14" column="19" lean-forward="true" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/transfer/history.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="24" column="23" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/transfer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="155" column="18" lean-forward="true" selection-start-line="155" selection-start-column="18" selection-end-line="155" selection-end-column="18" />
+        <state relative-caret-position="244">
+          <caret line="146" column="35" lean-forward="true" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
         </state>
       </provider>
     </entry>

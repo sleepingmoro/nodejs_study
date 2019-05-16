@@ -16,7 +16,7 @@
         <td>받은사람</td>
         <td>금액</td>
         <td>유형</td>
-        <td>작성일</td>
+        <td>일시</td>
     </tr>
     <% for(let history of histories) { %>
         <tr>
@@ -33,7 +33,7 @@
             <% } else { %>
                 <td>테스트용 포인트 지급</td>
             <% } %>
-            <td><%= history.createdAt.toISOString().replace(/T/, ' ').replace(/\..+/, '') %></td>
+            <td><%= history.createdAt.toLocaleString() %></td>
         </tr>
     <% } %>
 </table>
