@@ -1,88 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-</head>
-<body>
-<h1>송금 내역</h1><a href="/transfer">송금하러 가기</a>
-<hr>
-<!-- TODO: pagination -->
-<ul class="nav nav-tabs">
-    <li class="nav-item active" id="all">
-        <a href="/transfer/history">전체</a>
-    </li>
-    <li class="nav-item" id="received">
-        <a href="/transfer/history?tab=received">입금</a>
-    </li>
-    <li class="nav-item" id="sent">
-        <a href="/transfer/history?tab=sent">출금</a>
-    </li>
-    <li class="nav-item" id="test">
-        <a href="/transfer/history?tab=test">모든 유저의 내역 보기(테스트용)</a>
-    </li>
-</ul>
-<br>
-<table style="border: solid black 1px; margin-bottom:30px;">
-    <tr>
-        <td>id</td>
-        <td>보낸사람</td>
-        <td>받은사람</td>
-        <td>금액</td>
-        <td>유형</td>
-        <td>일시</td>
-    </tr>
-    <% for(let history of histories) { %>
-        <tr>
-            <td><%= history.id %></td>
-            <td><%= history.sentUserEmail %></td>
-            <td><%= history.receivedUserEmail %></td>
-            <td><%= history.amount %></td>
-            <% if(history.type == 1){ %>
-                <td>거래</td>
-            <% } else if(history.type == 2){ %>
-                <td>가입기념 포인트 지급</td>
-            <% } else if(history.type == 3){ %>
-                <td>추천인 포인트 지급</td>
-            <% } else { %>
-                <td>테스트용 포인트 지급</td>
-            <% } %>
-            <td><%= history.createdAt.toLocaleString() %></td>
-        </tr>
-    <% } %>
-</table>
-<!-- paginator -->
-<% var maxPage = Math.ceil(count/10);%>
-<% if(maxPage>1){ %>
-    <% var num = 0;%>
-    <% var dataSize = count;%>
-    <% var currentPage = 1;%>
-        <% if(page){currentPage = page;}%>
-    <ul class="pagination">
-    <% for(i= currentPage-3;i<=maxPage;i++){%>
-        <% if(i>=1){%>
-            <% if(num > 6){break;}%>
-            <% if(num==0){%>
-            <li class="page-item" id="page<%=i%>">
-                <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">prev</a>
-            </li>
-
-            <% }else if(num==6){ %>
-                <li class="page-item" id="page<%=i%>">
-                    <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">next</a>
-                </li>
-            <% }else{ %>
-                <li class="page-item" id="page<%=i%>">
-                    <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>"><%=i%></a>
-                </li>
-            <% } %>
-        <% } %>
-        <% num++; %>
-    <% } %>
+<%- include ../header.ejs %>
+<div style="margin:10px;">
+    <a href="/transfer" class="btn btn-primary">송금하러 가기</a>
+    <h3>입출금 내역</h3>
+    <ul class="nav nav-tabs">
+        <li class="nav-item active" id="all">
+            <a href="/transfer/history">전체</a>
+        </li>
+        <li class="nav-item" id="received">
+            <a href="/transfer/history?tab=received">입금</a>
+        </li>
+        <li class="nav-item" id="sent">
+            <a href="/transfer/history?tab=sent">출금</a>
+        </li>
+        <li class="nav-item" id="test">
+            <a href="/transfer/history?tab=test">모든 유저의 내역 보기(테스트용)</a>
+        </li>
     </ul>
-<% } %>
-<!-- paginator end -->
+    <br>
+    <table style="border: solid black 1px; margin-bottom:30px;">
+        <tr>
+            <td>id</td>
+            <td>보낸사람</td>
+            <td>받은사람</td>
+            <td>금액</td>
+            <td>유형</td>
+            <td>일시</td>
+        </tr>
+        <% for(let history of histories) { %>
+            <tr>
+                <td><%= history.id %></td>
+                <td><%= history.sentUserEmail %></td>
+                <td><%= history.receivedUserEmail %></td>
+                <td><%= history.amount %></td>
+                <% if(history.type == 1){ %>
+                    <td>거래</td>
+                <% } else if(history.type == 2){ %>
+                    <td>가입기념 포인트 지급</td>
+                <% } else if(history.type == 3){ %>
+                    <td>추천인 포인트 지급</td>
+                <% } else { %>
+                    <td>테스트용 포인트 지급</td>
+                <% } %>
+                <td><%= history.createdAt.toLocaleString() %></td>
+            </tr>
+        <% } %>
+    </table>
+    <!-- paginator -->
+    <% var maxPage = Math.ceil(count/10);%>
+    <% if(maxPage>1){ %>
+        <% var num = 0;%>
+        <% var dataSize = count;%>
+        <% var currentPage = 1;%>
+            <% if(page){currentPage = page;}%>
+        <ul class="pagination">
+        <% for(i= currentPage-3;i<=maxPage;i++){%>
+            <% if(i>=1){%>
+                <% if(num > 6){break;}%>
+                <% if(num==0){%>
+                <li class="page-item" id="page<%=i%>">
+                    <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">prev</a>
+                </li>
+
+                <% }else if(num==6){ %>
+                    <li class="page-item" id="page<%=i%>">
+                        <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">next</a>
+                    </li>
+                <% }else{ %>
+                    <li class="page-item" id="page<%=i%>">
+                        <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>"><%=i%></a>
+                    </li>
+                <% } %>
+            <% } %>
+            <% num++; %>
+        <% } %>
+        </ul>
+    <% } %>
+    <!-- paginator end -->
+</div>
 </body>
 <script>
     function getParameterByName(name, url) {

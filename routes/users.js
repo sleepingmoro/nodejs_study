@@ -8,11 +8,11 @@ router.get('/sign_up', function(req, res, next) {
   res.render("user/signup");
 });
 
-// TODO: promise 문법에서 넘겨준 변수명들 정리
 // TODO: console.log 제거
-// TODO: 이메일 중복일 때 알럿
 router.post("/sign_up", function(req,res,next){
   let body = req.body;
+  console.log('회원가입 요청');
+  console.log(body);
 
   let inputPassword = body.password;
   let salt = Math.round((new Date().valueOf() * Math.random())) + "";
@@ -74,6 +74,27 @@ router.post('/find_recommended_user', function(req, res, next){
         });
 });
 
+// 중복 메일주소 체크
+router.post('/check_duplicated_user', function(req, res, next){
+    var userEmail = req.body.user_email;
+    console.log('input',userEmail);
+    models.user.findOne({
+        where: {email : userEmail}
+    })
+        .then(user => {
+            if(!user){
+                console.log('user', 'no user');
+                res.send({user: null});
+                return;
+            }
+            console.log('user', user.dataValues.email);
+            res.send({user: user});
+        })
+        .catch( err =>{
+            console.log(err);
+        });
+});
+
 router.get('/', function(req, res, next) {
   if(req.cookies){
     console.log(req.cookies);
@@ -81,16 +102,15 @@ router.get('/', function(req, res, next) {
   res.send('환영합니다~');
 });
 
-// TODO: 다른 페이지에서도 로그인 여부 관리
 router.get('/login', function(req, res, next) {
     let session = req.session;
 
     res.render("user/login", {
-        session : session
+        session : session,
+        msg: ''
     });
 });
 
-// TODO: 잘못된 로그인 정보일때 핸들링
 router.post("/login", function(req,res,next){
   let body = req.body;
 
@@ -120,11 +140,19 @@ router.post("/login", function(req,res,next){
         }
         else{
           console.log("비밀번호 불일치");
-          res.redirect("/users/login");
+          // res.redirect("/users/login");
+            res.render('user/login', {
+                session: req.session,
+                msg: '비밀번호가 일치하지 않습니다.'
+            });
         }
       })
       .catch( err => {
         console.log(err);
+          res.render('user/login', {
+              session: req.session,
+              msg: '존재하지 않는 유저입니다.'
+          });
       });
 });
 

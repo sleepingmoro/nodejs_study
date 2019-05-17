@@ -1,23 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-</head>
-<body>
-<%= session.email %>님 환영합니다.
-<form action="/users/logout" method="get">
-    <input type="submit" value="로그아웃">
-</form>
-<p style="color:red;"><%= msg %></p>
-<%- include new.ejs %>
-잔액 : <%= user_info.balance %>
-<br>
-<h5>입출금내역</h5>
-<a href="/transfer/history">전체</a>
-<a href="/transfer/history?tab=received">입금</a>
-<a href="/transfer/history?tab=sent">출금</a>
-<a href="/transfer/history?tab=test">모든 유저의 내역 보기(테스트용)</a>
-<br>
+<%- include ../header.ejs %>
+<div style="margin:10px;">
+    <h3>송금하기</h3>
+    잔액 : <%= user_info.balance %>&nbsp;point
+    <p style="color:red;"><%= msg %></p>
+    <%- include new.ejs %>
+    <br>
+    <hr>
+    <h3>입출금내역</h3>
+            <a href="/transfer/history" class="btn btn-info">전체</a>
+            <a href="/transfer/history?tab=received" class="btn btn-info">입금</a>
+            <a href="/transfer/history?tab=sent" class="btn btn-info">출금</a>
+            <a href="/transfer/history?tab=test" class="btn btn-warning">모든 유저의 내역 보기(테스트용)</a>
+</div>
 </body>
 </html>

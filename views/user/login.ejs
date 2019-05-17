@@ -3,45 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 </head>
 <body>
-
 <% if(session.email){ %>
-    <h3><%= session.email%>님 환영합니다.</h3>
-    <form action="/users/logout" method="get">
-        <input type="submit" value="로그아웃">
-    </form>
-
-<form action="/users/pay" method="post">
-<!--    <input type="text" name="userEmail">에게-->
-<!--    <input type="text" name="amount">transfer-->
-    <input type="text" name="userEmail" value="b@b.com">에게
-    <input type="text" name="amount" value="10">point
-    <input type="submit" value="송금하기">
-</form>
-
-<a href="/transfer">송금기록 보기</a>
-
+    <div style="background-color: #ffcccc;">
+        <div style="padding:10px;">
+            <form action="/users/logout" method="get">
+                <%= session.email %>님 환영합니다.<input type="submit" style="margin-left:30px;" class="btn btn-light" value="로그아웃">
+            </form>
+        </div>
+    </div>
+    <div style="margin:10px;">
+        <a href="/transfer" class="btn btn-info">송금하러 가기</a>
+        <a href="/transfer/history" class="btn btn-success">입출금내역 보러가기</a>
+    </div>
 <% } else { %>
-    <h3>로그인</h3>
-    <form action="/users/login" method="post">
-        <table>
-            <tr>
-                <td>이메일 : </td>
-                <td><input type="text" name="userEmail" value="a@a.com"></td>
-<!--                <td><input type="text" name="userEmail"></td>-->
-            </tr>
-            <tr>
-                <td>비번 : </td>
-                <td><input type="password" name="password"></td>
-            </tr>
-            <tr>
-                <td><input type="submit" value="로그인"></t>
-            </tr>
-        </table>
+<div style="background-color: #ffcccc;">
+    <div style="padding:10px;">
+        <h3>로그인</h3>
+    </div>
+</div>
+    <div style="margin:10px;">
+    <form action="/users/login" method="post" id="login_form">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" name="userEmail" value="a@a.com" class="form-control" id="email_input" aria-describedby="emailHelp" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="password" class="form-control" id="password_input" placeholder="Password">
+        </div>
+        <%= msg %>
+        <a href="/users/sign_up" class="btn btn-success">회원가입</a>
+        <button type="button" id="submit_form_btn" class="btn btn-primary">로그인</button>
     </form>
-<a href="/users/sign_up">가입하기</a>
-<% } %>
-
+    <% } %>
+</div>
 </body>
+<script>
+    $('#submit_form_btn').click(function(){
+        if($('#email_input').val() == '') {
+            alert('메일주소를 입력해주세요.');
+        }else if($('#password_input').val() == '') {
+            alert('비밀번호를 입력해주세요.');
+        }else{
+            $('#login_form').submit();
+        };
+    });
+
+</script>
 </html>

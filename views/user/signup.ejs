@@ -2,42 +2,44 @@
 <html lang="en">
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <meta charset="UTF-8">
     <title>Document</title>
 </head>
 <body>
-<h3>회원 가입</h3>
-<form action="/users/sign_up" method="post">
-    <table>
-        <tr>
-            <td>이름 : </td>
-            <td><input type="text" name="userName"></td>
-        </tr>
-        <tr>
-            <td>이메일 : </td>
-            <td><input type="text" name="userEmail"></td>
-        </tr>
-        <tr>
-            <td>비밀번호 : </td>
-            <td><input type="password" name="password"></td>
-        </tr>
-        <tr>
-            <td>추천인 : </td>
-            <td><input id="recommend_user_email" type="text" name="recommendUserEmail"></td>
+<div style="background-color: #ffcccc;">
+    <div style="padding:10px;">
+        <h3>회원 가입</h3>
+    </div>
+</div>
+<div style="margin:10px;">
+    <form id="sign_up" action="/users/sign_up" method="post">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" name="userEmail" class="form-control" id="user_email" placeholder="메일주소를 입력하세요." required>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName1">Name</label>
+            <input type="text" name="userName" class="form-control" id="user_name" placeholder="닉네임을 입력하세요." required>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="password" class="form-control" id="user_password" placeholder="비밀번호를 입력하세요." required>
+        </div>
+        <div class="form-group">
+            <label for="recommend_user_email">추천인(선택사항)</label>
+            <input type="email" id="recommend_user_email" name="recommendUserEmail" class="form-control" aria-describedby="emailHelp" placeholder="추천인의 메일주소를 입력하세요.">
             <div id="recommended_user"></div>
-        </tr>
-        <tr>
-            <td><input id="find_recommended_user" type="button" value="추천인 확인"></td>
-        </tr>
-        <tr>
-            <td><input type="submit" value="회원가입"></td>
-        </tr>
-    </table>
-</form>
+        </div>
+        <input id="find_recommended_user" class="btn btn-success" type="button" value="추천인 확인">
+        <input id="check_duplicated_user" class="btn btn-success" type="button" value="아이디 중복확인">
+        <button id="submit_form_btn" type="submit" class="btn btn-primary">가입하기</button>
+    </form>
+</div>
+
 <script>
     //TODO : on submit data validation
     $('#find_recommended_user').click(function(){
-        console.log('hi');
         $.ajax({
             url: '/users/find_recommended_user',
             dataType: 'json',
@@ -59,6 +61,49 @@
             }
         })
     })
+
+    $('#check_duplicated_user').click(function(){
+        var emailInput = $('#user_email').val();
+        var regExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+        if(emailInput == ''){
+            alert('이메일을 입력하세요.');
+            return;
+        } else if (emailInput.match(regExp) == null){
+            alert('이메일 형식이 올바르지 않습니다.');
+            return;
+        }
+        $.ajax({
+            url: '/users/check_duplicated_user',
+            dataType: 'json',
+            type: 'POST',
+            data: {'user_email': emailInput},
+            success: function(result){
+                if(result['user']){
+                    const user_name = result['user'].name;
+                    alert('중복된 메일주소입니다. 다른 주소를 사용해주세요.')
+                } else {
+                    if(confirm(emailInput + '을 아이디로 사용하시겠습니까?')){
+                        $('#user_email').attr('readOnly', true);
+                        $('#user_email').text(emailInput);
+                        $('#check_duplicated_user').hide();
+                    }
+                }
+            }
+        })
+    })
+
+    $('#submit_form_btn').click(function(){
+        if($('#user_email').attr('readOnly') !== 'readonly'){
+            alert('아이디 중복검사를 해 주세요.');
+        }else if($('#user_name').val() == '') {
+            alert('이름을 입력해주세요.');
+        }else if($('#user_password').val() == '') {
+            alert('비밀번호를 입력해주세요.');
+        }else{
+            $('#sign_up').submit();
+        };
+    });
+
 </script>
 </body>
 </html>

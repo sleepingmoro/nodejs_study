@@ -208,9 +208,7 @@ router.post('/send_point', function(req, res, next) {
 
 });
 
-// TODO: 송금 관련 라우트 및 페이지 따로 빼기
 // TODO: 중복되는 부분 모듈화하기
-// TODO: 불필요하게 가져오는 컬럼 제거
 router.post("/pay", function(req, res, next){
     let receiver_email = req.body.userEmail;
     let sender_email = req.session.email;
