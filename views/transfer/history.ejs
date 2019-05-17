@@ -17,15 +17,18 @@
         </li>
     </ul>
     <br>
-    <table style="border: solid black 1px; margin-bottom:30px;">
-        <tr>
-            <td>id</td>
-            <td>보낸사람</td>
-            <td>받은사람</td>
-            <td>금액</td>
-            <td>유형</td>
-            <td>일시</td>
-        </tr>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>보낸사람</th>
+                <th>받은사람</th>
+                <th>금액</th>
+                <th>유형</th>
+                <th>일시</th>
+            </tr>
+        </thead>
+        <tbody>
         <% for(let history of histories) { %>
             <tr>
                 <td><%= history.id %></td>
@@ -44,6 +47,7 @@
                 <td><%= history.createdAt.toLocaleString() %></td>
             </tr>
         <% } %>
+        </tbody>
     </table>
     <!-- paginator -->
     <% var maxPage = Math.ceil(count/10);%>
