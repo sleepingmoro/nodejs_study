@@ -2,9 +2,32 @@
 <div style="margin:10px;">
     <h3>송금하기</h3>
     잔액 : <%= user_info.balance %>&nbsp;point
-    <p style="color:red;"><%= msg %></p>
     <%- include new.ejs %>
-    <br>
 </div>
 </body>
+<script>
+    $('#pay_btn').click(function(){
+        var userEmail = $('#user_email').val();
+        var amount = $('#amount').val();
+        if(userEmail == ''){
+            alert('보낼 대상의 이메일을 입력하세요.');
+            return;
+        }else if((amount == ('' || 0)) || amount < 0){
+            alert('금액을 바르게 입력하세요.');
+            return;
+        }
+        $('#pay_btn').hide();
+        $.ajax({
+            url: '/transfer/pay',
+            dataType: 'json',
+            type: 'POST',
+            data: {userEmail: userEmail, amount: amount},
+            success: function(result){
+                console.log(result);
+                $('#pay_btn').show();
+                $('#msg_div').html('<p style="color:red;">'+result.result+'<p>');
+            }
+        })
+    });
+</script>
 </html>

@@ -14,10 +14,7 @@ router.get('/', function(req, res, next) {
 
     let session = req.session;
 
-    models.user.findOne({
-            where: {email: req.session.email}
-        }
-    ).then(user_info => {
+    findUser(req.session.email).then(user_info => {
         models.transferHistory.findAll({
             attributes: ['sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
             where: {
@@ -27,7 +24,6 @@ router.get('/', function(req, res, next) {
         }).then(result => {
 
             res.render("transfer/index", {
-                histories: result,
                 session: session,
                 user_info: user_info,
                 msg: msg
@@ -97,11 +93,6 @@ router.post('/send_point', function(req, res, next) {
     let amount = parseInt(req.body.amount);
     var repeat = body.repeat;
 
-    function findUser(userEmail){
-        return models.user.findOne({
-            where: {email: userEmail}
-        })
-    }
     function updateBalance(user, repeat){
         if(repeat === undefined){
             repeat = 1;
@@ -161,13 +152,11 @@ router.post("/pay", function(req, res, next){
     transfer(receiver_email, sender_email, amount)
         .then(function () {
             createhistory(sender_email, receiver_email, amount, 1);
-        }).then(function(){
-        console.log("redirect");
-        res.redirect("/transfer");
-    }).catch(function(err){
+            res.send({result: receiver_email+'님께 ' + amount + 'point 송금이 완료되었습니다.'});
+        }).catch(function(err){
         msg = err;
         console.log(msg);
-        res.redirect("/transfer");
+        res.send({result: msg});
     });
 });
 
@@ -229,6 +218,12 @@ var findHistories = function(condition, offset){
             limit: 10
         })
 };
+
+function findUser(userEmail){
+    return models.user.findOne({
+        where: {email: userEmail}
+    })
+}
 
 var countDatas = function(condition){
     return models.transferHistory.count({where: condition})
