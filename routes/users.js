@@ -5,51 +5,51 @@ const crypto = require("crypto");
 const createhistory = require('./lib/createhistory.js');
 
 router.get('/sign_up', function(req, res, next) {
-  res.render("user/signup");
+    res.render("user/signup");
 });
 
 // TODO: console.log 제거
 router.post("/sign_up", function(req,res,next){
-  let body = req.body;
-  console.log('회원가입 요청');
-  console.log(body);
+    let body = req.body;
+    console.log('회원가입 요청');
+    console.log(body);
 
-  let inputPassword = body.password;
-  let salt = Math.round((new Date().valueOf() * Math.random())) + "";
-  let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
+    let inputPassword = body.password;
+    let salt = Math.round((new Date().valueOf() * Math.random())) + "";
+    let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
-  // 새 유저 생성
-  models.user.create({
-    name: body.userName,
-    email: body.userEmail,
-    password: hashPassword,
-    balance: 500,
-    salt: salt,
-    recommendedUserEmail: body.recommendUserEmail !== '' ? body.recommendUserEmail : null
-  })
-      .then( new_user => {
-          // 가입축하 포인트 history create
-          createhistory('admin', new_user.email, 500, 2);
+    // 새 유저 생성
+    models.user.create({
+        name: body.userName,
+        email: body.userEmail,
+        password: hashPassword,
+        balance: 500,
+        salt: salt,
+        recommendedUserEmail: body.recommendUserEmail !== '' ? body.recommendUserEmail : null
+    })
+        .then( new_user => {
+            // 가입축하 포인트 history create
+            createhistory('admin', new_user.email, 500, 2);
 
-          // 추천인 입력한 경우 추천인에게 포인트 지급
-          if(new_user.recommendedUserEmail){
-              console.log("추천인 있음!!!!!!!!!!!!!!!!!!");
-              models.user.findOne({
-                  where: {email: new_user.recommendedUserEmail}
-              })
-                  .then( recommended_user => {
-                      recommended_user.update({balance: parseInt(recommended_user.balance) + 500 });
-                      // 추천인 포인트 history create
-                      createhistory(new_user.email, recommended_user.email, 500, 3);
-                  })
-                  .catch()
-          }
+            // 추천인 입력한 경우 추천인에게 포인트 지급
+            if(new_user.recommendedUserEmail){
+                console.log("추천인 있음!!!!!!!!!!!!!!!!!!");
+                models.user.findOne({
+                    where: {email: new_user.recommendedUserEmail}
+                })
+                    .then( recommended_user => {
+                        recommended_user.update({balance: parseInt(recommended_user.balance) + 500 });
+                        // 추천인 포인트 history create
+                        createhistory(new_user.email, recommended_user.email, 500, 3);
+                    })
+                    .catch()
+            }
 
-          res.redirect("/users/login");
-      })
-      .catch( err => {
-        console.log(err)
-      })
+            res.redirect("/users/login");
+        })
+        .catch( err => {
+            console.log(err)
+        })
 });
 
 // 추천인 찾기
@@ -77,23 +77,16 @@ router.post('/find_recommended_user', function(req, res, next){
 // 중복 메일주소 체크
 router.post('/check_duplicated_user', function(req, res, next){
     var userEmail = req.body.user_email;
-    console.log('input',userEmail);
-    models.user.findOne({
-        where: {email : userEmail}
+
+    checkDuplication(userEmail)
+        .then(user=>{
+            return res.send(user);
+        }).catch(err=>{
+        res.redirect('/error');
     })
-        .then(user => {
-            if(!user){
-                console.log('user', 'no user');
-                res.send({user: null});
-                return;
-            }
-            console.log('user', user.dataValues.email);
-            res.send({user: user});
-        })
-        .catch( err =>{
-            console.log(err);
-        });
 });
+
+
 
 router.get(['/login', '/'], function(req, res, next) {
     let session = req.session;
@@ -105,47 +98,47 @@ router.get(['/login', '/'], function(req, res, next) {
 });
 
 router.post("/login", function(req,res,next){
-  let body = req.body;
+    let body = req.body;
 
-  models.user.findOne({
-    where: {email : body.userEmail}
-  })
-      .then( result => {
-        let dbPassword = result.dataValues.password;
+    models.user.findOne({
+        where: {email : body.userEmail}
+    })
+        .then( result => {
+            let dbPassword = result.dataValues.password;
 
-        let inputPassword = body.password;
-        let salt = result.dataValues.salt;
-        let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
+            let inputPassword = body.password;
+            let salt = result.dataValues.salt;
+            let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
-        if(dbPassword === hashPassword){
-          console.log("비밀번호 일치");
+            if(dbPassword === hashPassword){
+                console.log("비밀번호 일치");
 
-          // 쿠키 설정
-          res.cookie("user", body.userEmail, {
-            expires: new Date(Date.now() + 900000),
-            httpOnly: true
-          });
+                // 쿠키 설정
+                res.cookie("user", body.userEmail, {
+                    expires: new Date(Date.now() + 900000),
+                    httpOnly: true
+                });
 
-          // 세션 설정
-          req.session.email = body.userEmail;
+                // 세션 설정
+                req.session.email = body.userEmail;
 
-          res.redirect("/transfer");
-        }
-        else{
-          console.log("비밀번호 불일치");
-          // res.redirect("/users/login");
-            res.render('user/login', {
+                res.redirect("/transfer");
+            }
+            else{
+                console.log("비밀번호 불일치");
+                // res.redirect("/users/login");
+                res.render('user/login', {
+                    session: req.session,
+                    msg: '비밀번호가 일치하지 않습니다.'
+                });
+            }
+        })
+        .catch( function(err){
+            return res.render('user/login', {
                 session: req.session,
-                msg: '비밀번호가 일치하지 않습니다.'
+                msg: '존재하지 않는 유저입니다.'
             });
-        }
-      })
-      .catch( function(err){
-          return res.render('user/login', {
-              session: req.session,
-              msg: '존재하지 않는 유저입니다.'
-          });
-      });
+        });
 });
 
 router.get("/logout", function(req,res,next){
@@ -154,6 +147,16 @@ router.get("/logout", function(req,res,next){
 
     res.redirect("/users/login")
 });
+
+function findUser(userEmail){
+    return models.user.findOne({
+        where: {email : userEmail}
+    })
+}
+var checkDuplication = async function(userEmail){
+    var user = await findUser(userEmail);
+    return {user: user}
+};
 
 module.exports = router;
 
