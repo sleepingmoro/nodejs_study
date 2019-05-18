@@ -45,7 +45,6 @@ router.get('/history', function(req, res, next) {
 
     var pageNum = req.query.page; // 요청 페이지 넘버
     let offset = 0;
-    console.log(pageNum);
 
     if(pageNum > 1){
         offset = 10 * (pageNum - 1);
@@ -53,162 +52,102 @@ router.get('/history', function(req, res, next) {
 
     var tab = req.query.tab;
     let session = req.session;
-    var c;
     console.log("=====================", tab);
 
-    switch (tab) {
-        case 'received':
-            console.log('입금내역');
-            models.transferHistory.findAll(
-                {where: {receivedUserEmail: req.session.email}
-                }).then(count =>{
-                c = count.length;
-            }).then(function() {
-                models.transferHistory.findAll({
-                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                    where: {receivedUserEmail: req.session.email},
-                    order: [['id', 'DESC']],
-                    offset: offset,
-                    limit: 10
-                }).then(histories => {
-                    console.log(c);
-                    res.render("transfer/history", {
-                        histories: histories,
-                        session: session,
-                        user_info: req.session.email,
-                        count: c,
-                        tab: tab,
-                        page: pageNum
-                    });
-                });
-            });
-            break;
+    var condition;
+    switch(tab) {
         case 'sent':
-            console.log('출금내역');
-            models.transferHistory.findAll(
-                {where: {sentUserEmail: req.session.email}
-                }).then(count =>{
-                c = count.length;
-            }).then(function() {
-                models.transferHistory.findAll({
-                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                    where: {sentUserEmail: req.session.email},
-                    order: [['id', 'DESC']],
-                    offset: offset,
-                    limit: 10
-                }).then(histories => {
-                    res.render("transfer/history", {
-                        histories: histories,
-                        session: session,
-                        user_info: req.session.email,
-                        count: c,
-                        tab: tab,
-                        page: pageNum
-                    });
-                });
-            });
+            condition = {sentUserEmail: req.session.email};
+            break;
+        case 'received':
+            condition = {receivedUserEmail: req.session.email};
             break;
         case 'test':
-            console.log('테스트용 전체내역');
-            models.transferHistory.findAll().then(count =>{
-                c = count.length;
-            }).then(function() {
-                models.transferHistory.findAll({
-                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                    order: [['id', 'DESC']],
-                    offset: offset,
-                    limit: 10
-                }).then(histories => {
-                    res.render("transfer/history", {
-                        histories: histories,
-                        session: session,
-                        user_info: req.session.email,
-                        count: c,
-                        tab: tab,
-                        page: pageNum
-                    });
-                });
-            });
+            condition = '';
             break;
         default:
-            console.log('나의 전체내역');
-            models.transferHistory.findAll(
-                {where: {
-                        [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
-                    }
-                }).then(count =>{
-                c = count.length;
-            }).then(function() {
-                models.transferHistory.findAll({
-                    attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
-                    where: {
-                        [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
-                    },
-                    order: [['id', 'DESC']],
-                    offset: offset,
-                    limit: 10
-                }).then(histories => {
-                    res.render("transfer/history", {
-                        histories: histories,
-                        session: session,
-                        user_info: req.session.email,
-                        count: c,
-                        tab: tab,
-                        page: pageNum
-                    });
-                });
-            });
+            condition = {
+                [Op.or]: [{sentUserEmail: req.session.email}, {receivedUserEmail: req.session.email}]
+            };
+            break;
     }
 
-    // });
+    let count;
+    async function getData(){
+        count = await countDatas(condition);
+        return findHistories(condition, offset);
+    }
+    getData().then(histories => {
+        res.render("transfer/history", {
+            histories: histories,
+            session: session,
+            user_info: req.session.email,
+            count: count,
+            tab: tab,
+            page: pageNum
+        });
+    });
+
 });
 
 
 // test용 API
 router.post('/send_point', function(req, res, next) {
     let body = req.body;
+    let amount = parseInt(req.body.amount);
+    var repeat = body.repeat;
 
-    models.user.findOne({
-        where: {email: body.email}
-    })
-        .then(result => {
-            // 받는사람의 금액 변경
-            let new_balance = parseInt(result.dataValues.balance) + parseInt(body.amount);
-            result.update({
-                balance: new_balance
-            });
-            // 송금 history create
-            // createhistory('admin', body.email, parseInt(body.amount), 4)
-            models.transferHistory.create({
+    function findUser(userEmail){
+        return models.user.findOne({
+            where: {email: userEmail}
+        })
+    }
+    function updateBalance(user, repeat){
+        if(repeat === undefined){
+            repeat = 1;
+        }
+        for(var i = 0;i<repeat;i++){
+            var history = models.transferHistory.create({
                 sentUserEmail: 'admin',
                 receivedUserEmail: body.email,
-                amount: parseInt(body.amount),
+                amount: amount,
                 type: 4
-            })
-                .then( result2 =>
-                    res.send({
-                        result: {
-                            status: 'success',
-                            receivedUserEmail: result.dataValues.email,
-                            amount: body.amount,
-                            balance: new_balance,
-                            createdAt: result.dataValues.createdAt
-                        }
-                    })
-                )
-                .catch( err => {
-                    res.send({
-                        result: err
-                    })
-                });
-        })
-        .catch( err => {
-            console.log(err);
+            });
+        }
+        user.update({
+            balance: parseInt(user.balance) + amount*repeat
         });
-
+        return user;
+    }
+    async function sendPoint(){
+        if((amount !== 0) && !isNaN(amount)){
+            console.log('amount',!isNaN(amount));
+            let user = await findUser(body.email);
+            let updatedUser = await updateBalance(user, repeat);
+            return {user, updatedUser}
+        } else {
+            throw new Error('금액을 올바르게 입력하세요.');
+        }
+    }
+    sendPoint().then( result => {
+        res.send({
+            result: {
+                status: 'success',
+                receivedUserEmail: result['user'].email,
+                amount: amount,
+                balance: result['updatedUser'].balance
+            }
+        })
+    }).catch(err => {
+        res.send({
+            result: {
+                status: 'error',
+                msg: err.toString()
+            }
+        })
+    });
 });
 
-// TODO: 중복되는 부분 모듈화하기
 router.post("/pay", function(req, res, next){
     let receiver_email = req.body.userEmail;
     let sender_email = req.session.email;
@@ -281,5 +220,18 @@ var transfer = function (receiver_email, sender_email, amount) {
     });
 };
 
+var findHistories = function(condition, offset){
+    return models.transferHistory.findAll({
+            attributes: ['id', 'sentUserEmail', 'receivedUserEmail', 'amount', 'type', 'createdAt'],
+            where: condition,
+            order: [['id', 'DESC']],
+            offset: offset,
+            limit: 10
+        })
+};
+
+var countDatas = function(condition){
+    return models.transferHistory.count({where: condition})
+};
 
 module.exports = router;

@@ -95,14 +95,7 @@ router.post('/check_duplicated_user', function(req, res, next){
         });
 });
 
-router.get('/', function(req, res, next) {
-  if(req.cookies){
-    console.log(req.cookies);
-  }
-  res.send('환영합니다~');
-});
-
-router.get('/login', function(req, res, next) {
+router.get(['/login', '/'], function(req, res, next) {
     let session = req.session;
 
     res.render("user/login", {
@@ -147,9 +140,8 @@ router.post("/login", function(req,res,next){
             });
         }
       })
-      .catch( err => {
-        console.log(err);
-          res.render('user/login', {
+      .catch( function(err){
+          return res.render('user/login', {
               session: req.session,
               msg: '존재하지 않는 유저입니다.'
           });

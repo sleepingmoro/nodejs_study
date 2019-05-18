@@ -34,7 +34,11 @@
                 <td><%= history.id %></td>
                 <td><%= history.sentUserEmail %></td>
                 <td><%= history.receivedUserEmail %></td>
-                <td><%= history.amount %></td>
+                <% if(history.amount < 0){ %>
+                    <td><%= history.amount*-1 %></td>
+                <% } else { %>
+                    <td><%= history.amount %></td>
+                <% }%>
                 <% if(history.type == 1){ %>
                     <td>거래</td>
                 <% } else if(history.type == 2){ %>
@@ -51,6 +55,7 @@
     </table>
     <!-- paginator -->
     <% var maxPage = Math.ceil(count/10);%>
+    <% console.log(count)%>
     <% if(maxPage>1){ %>
         <% var num = 0;%>
         <% var dataSize = count;%>
@@ -93,6 +98,8 @@
     function activeTabs() {
 
         var url = window.location.href;
+        var tabName;
+        var pageNumber;
 
         if(url.includes('tab')){
             tabName  = getParameterByName("tab", url);

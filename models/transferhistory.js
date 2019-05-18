@@ -19,10 +19,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
 
-  transferHistory.associate = function(models) {
-    transferHistory.belongsTo(models.user, {
-      foreignKey: "receivedUserEmail"
-    })
-  };
   return transferHistory;
 };
