@@ -34,10 +34,8 @@ router.post("/sign_up", function(req,res,next){
             // 추천인 입력한 경우 추천인에게 포인트 지급
             if(new_user.recommendedUserEmail){
                 console.log("추천인 있음!!!!!!!!!!!!!!!!!!");
-                models.user.findOne({
-                    where: {email: new_user.recommendedUserEmail}
-                })
-                    .then( recommended_user => {
+                findUser(new_user.recommendedUserEmail)
+                .then( recommended_user => {
                         recommended_user.update({balance: parseInt(recommended_user.balance) + 500 });
                         // 추천인 포인트 history create
                         createhistory(new_user.email, recommended_user.email, 500, 3);
@@ -57,10 +55,7 @@ router.post('/find_recommended_user', function(req, res, next){
     console.log('get ajax call');
     var recommendedUserEmail = req.body.recommended_user_email;
     console.log('input',recommendedUserEmail);
-    models.user.findOne({
-        where: {email : recommendedUserEmail}
-    })
-        .then(user => {
+    findUser(recommendedUserEmail).then(user => {
             if(!user){
                 console.log('user', 'no user');
                 res.send({user: null});
@@ -99,11 +94,9 @@ router.get(['/login', '/'], function(req, res, next) {
 
 router.post("/login", function(req,res,next){
     let body = req.body;
+    let userEmail = body.userEmail;
 
-    models.user.findOne({
-        where: {email : body.userEmail}
-    })
-        .then( result => {
+    findUser(userEmail).then( result => {
             let dbPassword = result.dataValues.password;
 
             let inputPassword = body.password;
@@ -114,13 +107,13 @@ router.post("/login", function(req,res,next){
                 console.log("비밀번호 일치");
 
                 // 쿠키 설정
-                res.cookie("user", body.userEmail, {
+                res.cookie("user", userEmail, {
                     expires: new Date(Date.now() + 900000),
                     httpOnly: true
                 });
 
                 // 세션 설정
-                req.session.email = body.userEmail;
+                req.session.email = userEmail;
 
                 res.redirect("/transfer");
             }

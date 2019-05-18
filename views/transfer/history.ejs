@@ -1,6 +1,5 @@
 <%- include ../header.ejs %>
 <div style="margin:10px;">
-    <a href="/transfer" class="btn btn-primary">송금하러 가기</a>
     <h3>입출금 내역</h3>
     <ul class="nav nav-tabs">
         <li class="nav-item active" id="all">
@@ -112,7 +111,7 @@
             tab.classList.add("active");
             document.getElementById('all').classList.remove("active");
         }
-        
+
         var page = document.getElementById('page' + pageNumber);
         if(page){
             page.classList.add("active");
