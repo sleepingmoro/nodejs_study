@@ -62,15 +62,15 @@
         <% var currentPage = 1;%>
             <% if(page){currentPage = page;}%>
         <ul class="pagination">
-        <% for(i= currentPage-3;i<=maxPage;i++){%>
+        <% for(i= currentPage-5;i<=maxPage;i++){%>
             <% if(i>=1){%>
-                <% if(num > 6){break;}%>
+                <% if(num > 10){break;}%>
                 <% if(num==0){%>
                 <li class="page-item" id="page<%=i%>">
                     <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">prev</a>
                 </li>
 
-                <% }else if(num==6){ %>
+                <% }else if(num==10){ %>
                     <li class="page-item" id="page<%=i%>">
                         <a class="page-link" href="/transfer/history?tab=<%= tab %>&page=<%= i %>">next</a>
                     </li>
@@ -99,7 +99,7 @@
 
         var url = window.location.href;
         var tabName;
-        var pageNumber;
+        var pageNumber = 1;
 
         if(url.includes('tab')){
             tabName  = getParameterByName("tab", url);
@@ -107,16 +107,15 @@
         if(url.includes('page')){
             pageNumber  = getParameterByName("page", url);
         }
-
         if(tabName){
             var tab = document.getElementById(tabName);
             tab.classList.add("active");
             document.getElementById('all').classList.remove("active");
         }
-        if(pageNumber){
-            var page = document.getElementById('page' + pageNumber);
+        
+        var page = document.getElementById('page' + pageNumber);
+        if(page){
             page.classList.add("active");
-            document.getElementById('page1').classList.remove("active");
         }
     }
 
