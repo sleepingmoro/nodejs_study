@@ -137,6 +137,7 @@ router.post("/login", function(req,res,next){
 router.get("/logout", function(req,res,next){
     req.session.destroy();
     res.clearCookie('sid');
+    res.clearCookie('user');
 
     res.redirect("/users/login")
 });

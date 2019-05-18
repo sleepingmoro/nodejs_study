@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Document</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 </head>
 <body>
 <% if(session.email){ %>
@@ -14,8 +15,12 @@
             </form>
         </div>
     </div>
-    <div style="margin:10px;">
-        <a href="/transfer" class="btn btn-info">송금하러 가기</a>
-        <a href="/transfer/history" class="btn btn-success">입출금내역 보러가기</a>
-    </div>
+    <div style="margin:10px;" id="menu_bar"></div>
 <% } %>
+<script>
+    if(window.location.href.includes('history')){
+        $('#menu_bar').append('<a href="/transfer" class="btn btn-info">송금하러 가기</a>');
+    } else {
+        $('#menu_bar').append('<a href="/transfer/history" class="btn btn-success">입출금내역 보러가기</a>');
+    }
+</script>
