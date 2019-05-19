@@ -23,7 +23,6 @@
             type: 'POST',
             data: {userEmail: userEmail, amount: amount},
             success: function(result){
-                console.log(result);
                 $('#pay_btn').show();
                 $('#msg_div').html('<p style="color:red;">'+result.result+'<p>');
                 $('#balance').html(result.new_balance);

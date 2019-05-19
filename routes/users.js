@@ -8,11 +8,8 @@ router.get('/sign_up', function(req, res, next) {
     res.render("user/signup");
 });
 
-// TODO: console.log 제거
 router.post("/sign_up", function(req,res,next){
     let body = req.body;
-    console.log('회원가입 요청');
-    console.log(body);
 
     let inputPassword = body.password;
     let salt = Math.round((new Date().valueOf() * Math.random())) + "";
@@ -33,7 +30,6 @@ router.post("/sign_up", function(req,res,next){
 
             // 추천인 입력한 경우 추천인에게 포인트 지급
             if(new_user.recommendedUserEmail){
-                console.log("추천인 있음!!!!!!!!!!!!!!!!!!");
                 findUser(new_user.recommendedUserEmail)
                 .then( recommended_user => {
                         recommended_user.update({balance: parseInt(recommended_user.balance) + 500 });
@@ -52,16 +48,12 @@ router.post("/sign_up", function(req,res,next){
 
 // 추천인 찾기
 router.post('/find_recommended_user', function(req, res, next){
-    console.log('get ajax call');
     var recommendedUserEmail = req.body.recommended_user_email;
-    console.log('input',recommendedUserEmail);
     findUser(recommendedUserEmail).then(user => {
             if(!user){
-                console.log('user', 'no user');
                 res.send({user: null});
                 return;
             }
-            console.log('user', user.dataValues.email);
             res.send({user: user});
         })
         .catch( err =>{
@@ -104,7 +96,6 @@ router.post("/login", function(req,res,next){
             let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
             if(dbPassword === hashPassword){
-                console.log("비밀번호 일치");
 
                 // 쿠키 설정
                 res.cookie("user", userEmail, {
@@ -118,8 +109,6 @@ router.post("/login", function(req,res,next){
                 res.redirect("/transfer");
             }
             else{
-                console.log("비밀번호 불일치");
-                // res.redirect("/users/login");
                 res.render('user/login', {
                     session: req.session,
                     msg: '비밀번호가 일치하지 않습니다.'

@@ -48,7 +48,6 @@ router.get('/history', function(req, res, next) {
 
     var tab = req.query.tab;
     let session = req.session;
-    console.log("=====================", tab);
 
     var condition;
     switch(tab) {
@@ -150,7 +149,6 @@ router.post("/pay", function(req, res, next){
 
     transfer(receiver_email, sender_email, amount)
         .then(function (balance) {
-            console.log("=======================", balance);
             res.send({
                 result: receiver_email+'님께 ' + amount + 'point 송금이 완료되었습니다.',
                 new_balance: balance

@@ -48,7 +48,6 @@
             success: function(result){
                 if(result['user']){
                     const user_name = result['user'].name;
-                    console.log(user_name);
                     if(confirm(user_name + '님을 추천인으로 입력하시겠습니까?')){
                         $('#recommend_user_email').attr('readOnly', true);
                         $('#recommend_user_email').text(user_name);
@@ -56,7 +55,6 @@
                     }
                 } else {
                     alert('존재하지 않는 유저입니다.\n추천인 이메일을 바르게 입력해주세요.');
-                    console.log('no user');
                 }
             }
         })

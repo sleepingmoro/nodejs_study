@@ -1,14 +1,14 @@
 module.exports = function(sender, receiver, amount, type) {
     const models = require("../../models");
 
-    models.transferHistory.create({
+    return models.transferHistory.create({
         sentUserEmail: sender,
         receivedUserEmail: receiver,
         amount: amount,
         type: type
-    })
-        .then()
-        .catch( err => {
-            console.log(err);
-        });
+    }).then( result =>{
+        return result;
+    }).catch( err => {
+        throw new Error(err);
+    });
 };
