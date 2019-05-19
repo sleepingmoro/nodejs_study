@@ -112,7 +112,6 @@ router.post('/send_point', function(req, res, next) {
     }
     async function sendPoint(){
         if((amount !== 0) && !isNaN(amount)){
-            console.log('amount',!isNaN(amount));
             let user = await findUser(body.email);
             let updatedUser = await updateBalance(user, repeat);
             return {user, updatedUser}
@@ -150,62 +149,49 @@ router.post("/pay", function(req, res, next){
     }
 
     transfer(receiver_email, sender_email, amount)
-        .then(function () {
-            createhistory(sender_email, receiver_email, amount, 1);
-            res.send({result: receiver_email+'님께 ' + amount + 'point 송금이 완료되었습니다.'});
+        .then(function (balance) {
+            console.log("=======================", balance);
+            res.send({
+                result: receiver_email+'님께 ' + amount + 'point 송금이 완료되었습니다.',
+                new_balance: balance
+            });
         }).catch(function(err){
-        msg = err;
-        console.log(msg);
-        res.send({result: msg});
+        res.send({result: err.toString()});
     });
 });
 
-var transfer = function (receiver_email, sender_email, amount) {
-    return new Promise(function(resolve, reject) {
-
-        // 트랜젝션
-        models.sequelize.transaction().then(function(transaction){
-            t = transaction;
-
-            // 보내는사람의 금액 변경
-            models.user.findOne({
-                where: {email: sender_email},
+var transfer = async function(receiver_email, sender_email, amount){
+    // 유저를 먼저 찾아둔다.
+    var sender = await findUser(sender_email);
+    var receiver = await findUser(receiver_email);
+    // 상대방이 존재하지 않거나, 잔액 부족시 송금하지 않음
+    if(!receiver){
+        throw new Error('존재하지 않는 유저입니다.');
+    }
+    if(sender.balance < amount){
+        throw new Error('잔액이 부족합니다.');
+    }
+    // 금액 가감은 트랜젝션으로 묶어 처리함
+    return models.sequelize.transaction().then(function(transaction) {
+        t = transaction;
+        return receiver.update({
+            balance: parseInt(receiver.dataValues.balance) + amount
+        }, {
+            transaction: t
+        }).then(function(){
+            return sender.update({
+                balance: parseInt(sender.dataValues.balance) - amount
+            }, {
                 transaction: t
-            }).then(send_user => {
-                if(send_user.balance > amount) {
-                    return send_user.update({
-                        balance: parseInt(send_user.dataValues.balance) - amount
-                    }, {
-                        transaction: t
-                    });
-                } else {
-                    reject('잔액 부족');
-                    return t.rollback();
-                }
-            }).then(
-                // 받는 사람의 금액 변경
-                models.user.findOne({
-                    where: {email: receiver_email},
-                    transaction: t
-                }).then(receive_user => {
-                    if(receive_user){
-                        return receive_user.update({
-                            balance: parseInt(receive_user.dataValues.balance) + amount
-                        },{
-                            transaction: t
-                        });
-                    } else {
-                        reject('존재하지 않는 유저입니다.');
-                        throw new Error('no user');
-                    }
-
-                }).then(function(){
-                    resolve(receiver_email, t);
-                    return t.commit();
-                }).catch(function (err) {
-                    reject('문제가 발생하였습니다. 잠시 후 다시 시도해주세요.');
-                })
-            )});
+            });
+        });
+    }).then(function(sender){
+        // 송금 처리 성공시 history를 생성하고 커밋함
+        createhistory(sender_email, receiver_email, amount, 1);
+        t.commit(sender.balance);
+        return sender.balance
+    }).catch(err => {
+        return t.rollback(err);
     });
 };
 

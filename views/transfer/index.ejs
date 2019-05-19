@@ -1,7 +1,7 @@
 <%- include ../header.ejs %>
 <div style="margin:10px;">
     <h3>송금하기</h3>
-    잔액 : <%= user_info.balance %>&nbsp;point
+    잔액 : <span id="balance"><%= user_info.balance %></span>&nbsp;point
     <%- include new.ejs %>
 </div>
 </body>
@@ -26,6 +26,7 @@
                 console.log(result);
                 $('#pay_btn').show();
                 $('#msg_div').html('<p style="color:red;">'+result.result+'<p>');
+                $('#balance').html(result.new_balance);
             }
         })
     });
