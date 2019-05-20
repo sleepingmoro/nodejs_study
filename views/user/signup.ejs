@@ -97,6 +97,8 @@
             alert('이름을 입력해주세요.');
         }else if($('#user_password').val() == '') {
             alert('비밀번호를 입력해주세요.');
+        }else if($('#recommend_user_email').val() != '' && $('#recommend_user_email').attr('readOnly') !== 'readonly') {
+            alert('추천인 입력시 반드시 추천인 확인을 해주세요.');
         }else{
             $('#sign_up').submit();
         };
