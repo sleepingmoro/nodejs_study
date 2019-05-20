@@ -128,7 +128,7 @@ router.post('/send_point', function(req, res, next) {
             }
         })
     }).catch(err => {
-        res.send({
+        res.status(400).send({
             result: {
                 status: 'error',
                 msg: err.toString()
