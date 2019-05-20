@@ -17,12 +17,14 @@
             return;
         }
         $('#pay_btn').hide();
+        $('#spinner').show();
         $.ajax({
             url: '/transfer/pay',
             dataType: 'json',
             type: 'POST',
             data: {userEmail: userEmail, amount: amount},
             success: function(result){
+                $('#spinner').hide();
                 $('#pay_btn').show();
                 $('#msg_div').html('<p style="color:red;">'+result.result+'<p>');
                 $('#balance').html(result.new_balance);
