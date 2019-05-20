@@ -166,6 +166,9 @@ var transfer = async function(receiver_email, sender_email, amount){
     if(!receiver){
         throw new Error('존재하지 않는 유저입니다.');
     }
+    if(sender_email === receiver_email){
+        throw new Error('자신에게는 송금할 수 없습니다.');
+    }
     if(sender.balance < amount){
         throw new Error('잔액이 부족합니다.');
     }
